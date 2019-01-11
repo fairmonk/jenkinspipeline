@@ -1,5 +1,7 @@
 pipeline {
-    agent bandit
+    agent {
+        label "default"
+    }
     
     parameters { 
          string(name: 'tomcat_dev', defaultValue: '35.166.210.154', description: 'Staging Server')
@@ -13,7 +15,7 @@ pipeline {
 stages{
         stage('Build'){
             steps {
-                sh 'mvn clean package'
+                bat 'mvn clean package'
             }
             post {
                 success {
@@ -22,21 +24,10 @@ stages{
                 }
             }
         }
-
-        // stage ('Deployments'){
-        //     parallel{
-        //         stage ('Deploy to Staging'){
-        //             steps {
-        //                 sh "scp -i /home/jenkins/tomcat-demo.pem **/target/*.war ec2-user@${params.tomcat_dev}:/var/lib/tomcat7/webapps"
-        //             }
-        //         }
-
-        //         stage ("Deploy to Production"){
-        //             steps {
-        //                 sh "scp -i /home/jenkins/tomcat-demo.pem **/target/*.war ec2-user@${params.tomcat_prod}:/var/lib/tomcat7/webapps"
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Deploy to staging'){
+            steps {
+                build job: 'deploy-to-staging'
+            }
+        }
     }
 }
