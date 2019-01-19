@@ -4,18 +4,17 @@ pipeline {
     }
     
     parameters { 
-         string(name: 'tomcat_dev', defaultValue: '35.166.210.154', description: 'Staging Server')
-         string(name: 'tomcat_prod', defaultValue: '34.209.233.6', description: 'Production Server')
+         string(name: 'tomcat_dev', defaultValue: '18.223.116.165', description: 'Staging Server')
+         string(name: 'tomcat_prod', defaultValue: '18.220.40.175', description: 'Production Server')
     } 
 
     triggers {
          pollSCM('* * * * *') // Polling Source Control
      }
 
-stages{
-        stage('Build'){
+     stage('Build'){
             steps {
-                bat 'mvn clean package'
+                sh 'mvn clean package'
             }
             post {
                 success {
@@ -24,10 +23,20 @@ stages{
                 }
             }
         }
-        stage('Deploy to staging'){
+
+     stage('Deployments'){
+         parallel{
+            stage('Deploy to Staging') {
+                steps{
+                    bat "scp -i d:\\soft\\AWS\\tomcat-demo.pem **/target/*.war ec2-user@${params.tomcat_dev}:/var/lib/tomcat8/webapps"
+                }
+            }            
+        }
+        stage('Deploy to Production'){
             steps {
-                build job: 'deploy-to-staging'
+                bat: "scp -i d:\\soft\\AWS\\tomcat-demo.pem **/target/*.war ec2-user@${params.tomcat_prod}:/var/lib/tomcat8/webapps""
             }
         }
+     }
     }
 }
