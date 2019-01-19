@@ -2,6 +2,10 @@ pipeline {
     agent {
         label "default"
     }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+    }
     
     parameters { 
          string(name: 'tomcat_dev', defaultValue: '18.223.116.165', description: 'Staging Server')
