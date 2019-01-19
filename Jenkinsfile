@@ -11,7 +11,7 @@ pipeline {
     triggers {
          pollSCM('* * * * *') // Polling Source Control
      }
-
+stages{
      stage('Build'){
             steps {
                 sh 'mvn clean package'
@@ -38,4 +38,5 @@ pipeline {
             }
         }
      }
+}
 }
